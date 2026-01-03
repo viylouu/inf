@@ -1,16 +1,11 @@
 #include "vk.h"
-#include "loc.h"
+//#include "loc.h"
 
 #include "instance.c"
 #include "device.c"
 #include "surface.c"
 #include "swapchain.c"
 #include "imageviews.c"
-
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
-
-#include <string.h>
 
 static void vk_init(inf_window* window) {
     inf_debug_msg("initializing vulkan...");
