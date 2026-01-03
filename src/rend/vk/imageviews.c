@@ -12,23 +12,25 @@
 
 #include <string.h>
 
-static void _vk_createImageViews(void) {
+static void _vk_createImageViews(inf_window* window) {
     inf_debug_msg("creating image views...");
 
-    s.scimgviewamt = s.scimgamt;
-    s.swapchainimgviews = inf_malloc(sizeof(VkImageView) * s.scimgviewamt);
+    vk_windowRdata* rd = window->rdata;
 
-    for (u32 i = 0; i < s.scimgviewamt; ++i) {
+    rd->scimgviewamt = rd->scimgamt;
+    rd->swapchainimgviews = inf_malloc(sizeof(VkImageView) * rd->scimgviewamt);
+
+    for (u32 i = 0; i < rd->scimgviewamt; ++i) {
         VkImageViewCreateInfo createinfo = {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                 .pNext = NULL,
 
                 .flags = 0,
 
-                .image = s.swapchainimgs[i],
+                .image = rd->swapchainimgs[i],
 
                 .viewType = VK_IMAGE_VIEW_TYPE_2D,
-                .format = s.swapchainimgfmt,
+                .format = rd->swapchainimgfmt,
 
                 .components.r = VK_COMPONENT_SWIZZLE_IDENTITY,
                 .components.g = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -42,7 +44,7 @@ static void _vk_createImageViews(void) {
                 .subresourceRange.layerCount = 1,
             };
 
-        if (vkCreateImageView(s.device, &createinfo, NULL, &s.swapchainimgviews[i]) != VK_SUCCESS) {
+        if (vkCreateImageView(s.device, &createinfo, NULL, &rd->swapchainimgviews[i]) != VK_SUCCESS) {
             inf_err_msg("failed to create image views!");
             exit(1);
         }
@@ -51,11 +53,13 @@ static void _vk_createImageViews(void) {
     inf_debug_msg("created image views!");
 }
 
-static void _vk_deleteImageViews(void) {
-    for (u32 i = 0; i < s.scimgviewamt; ++i)
-        vkDestroyImageView(s.device, s.swapchainimgviews[i], NULL);
+static void _vk_deleteImageViews(inf_window* window) {
+    vk_windowRdata* rd = window->rdata;
 
-    inf_free(s.swapchainimgviews);
+    for (u32 i = 0; i < rd->scimgviewamt; ++i)
+        vkDestroyImageView(s.device, rd->swapchainimgviews[i], NULL);
+
+    inf_free(rd->swapchainimgviews);
 
     inf_debug_msg("deleted image views!");
 }

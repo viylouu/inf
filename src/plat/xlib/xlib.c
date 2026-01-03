@@ -111,8 +111,6 @@ static inf_window xlib_makeWindow(inf_windowDesc desc) {
             attribValMask, &w_attribs
             );
 
-    XMapWindow(s.maindisp, data->window);
-
     XStoreName(s.maindisp, data->window, desc.title);
 
     data->delwindow = XInternAtom(s.maindisp, "WM_DELETE_WINDOW", False);
@@ -129,16 +127,23 @@ static inf_window xlib_makeWindow(inf_windowDesc desc) {
         XFree(sizehints);
     }
 
+    if (desc.hidden)
+        XUnmapWindow(s.maindisp, data->window);
+    else
+        XMapWindow(s.maindisp, data->window);
+    XFlush(s.maindisp);
+
     inf_debug_msg("created window!");
 
     return window;
 }
 static void xlib_destWindow(inf_window* window) {
     inf_debug_msg("deleting window...");
+
     xlib_windowData* data = window->data;
     XDestroyWindow(s.maindisp, data->window);
     inf_free(data);
-    window->data = 0;
+
     inf_debug_msg("deleted window!");
 }
 

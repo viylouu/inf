@@ -3,45 +3,75 @@
 
 #include "instance.c"
 #include "device.c"
+#include "loc.h"
 #include "surface.c"
 #include "swapchain.c"
 #include "imageviews.c"
 
-static void vk_init(inf_window* window) {
+static void vk_init(void) {
     inf_debug_msg("initializing vulkan...");
 
     // cannot call muliple times! change to use window array for init
 
     _vk_createInstance();
 
-    _vk_createSurface(window);
+    s.tempwindow = inf_cur_plat_impl->makeWindow((inf_windowDesc){
+                .width = 1,
+                .height = 1,
+                .resizable = false,
+                .hidden = true,
+                .title = "vulkan hidden 1x1 lego piece ahh window",
+            });
+    s.twr = s.tempwindow.rdata = inf_malloc(sizeof(vk_windowRdata));
+
+    _vk_createSurface(&s.tempwindow);
 
     _vk_pickPhysicalDevice();
     _vk_createLogicalDevice();
-
-    _vk_createSwapchain(window);
-
-    _vk_createImageViews();
 
     inf_debug_msg("initialized vulkan!");
 }
 static void vk_exit(void) {
     inf_debug_msg("exiting vulkan...");
 
-    _vk_deleteImageViews();
-    
-    _vk_deleteSwapchain();
-
     _vk_deleteDevice();
 
-    _vk_deleteSurface();
+    _vk_deleteSurface(&s.tempwindow);
+    inf_free(s.tempwindow.rdata);
+    inf_cur_plat_impl->destWindow(&s.tempwindow);
 
     _vk_deleteInstance();
 
     inf_debug_msg("exited vulkan!");
 }
 
+void vk_PLAT_makeWindowRdata(inf_window* window) {
+    inf_debug_msg("making window rdata...");
+    
+    window->rdata = inf_malloc(sizeof(vk_windowRdata));
+
+    _vk_createSurface(window);
+    _vk_createSwapchain(window);
+    _vk_createImageViews(window);
+
+    inf_debug_msg("made window rdata!");
+}
+void vk_PLAT_destWindowRdata(inf_window* window) {
+    inf_debug_msg("deleting window rdata...");
+
+    _vk_deleteImageViews(window);
+    _vk_deleteSwapchain(window);
+    _vk_deleteSurface(window);
+
+    inf_free(window->rdata);
+
+    inf_debug_msg("deleted window rdata!");
+}
+
 const inf_rendImpl inf_vk_impl = (inf_rendImpl){
         .init = vk_init,
         .exit = vk_exit,
+
+        .PLAT_makeWindowRdata = vk_PLAT_makeWindowRdata,
+        .PLAT_destWindowRdata = vk_PLAT_destWindowRdata,
     };

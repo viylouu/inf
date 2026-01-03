@@ -33,33 +33,44 @@ VkPresentModeKHR _vk_chooseSwapPresentMode(VkPresentModeKHR* availablepmds, u32 
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-// !!!! using window!
 VkExtent2D _vk_chooseSwapExtent(inf_window* window, VkSurfaceCapabilitiesKHR caps) {
+    VkExtent2D actextent = caps.currentExtent;
+
     if (caps.currentExtent.width == UINT32_MAX) {
-        VkExtent2D actextent = {
+        inf_debug_msg("any swap extent available!");
+
+        actextent = (VkExtent2D){
                 window->desc.width,
                 window->desc.height,
             };
+    } else
+        inf_debug_fmt("current swap extent %dx%d!", caps.currentExtent.width,caps.currentExtent.height);
+    
+    inf_debug_fmt("chose width/height %dx%d!", actextent.width,actextent.height);
 
-        if (actextent.width < caps.minImageExtent.width)
-            actextent.width = caps.minImageExtent.width;
-        if (actextent.height < caps.minImageExtent.height)
-            actextent.height = caps.minImageExtent.height;
-        if (actextent.width > caps.maxImageExtent.width)
-            actextent.width = caps.maxImageExtent.width;
-        if (actextent.height > caps.maxImageExtent.height)
-            actextent.height = caps.maxImageExtent.height;
+    if (actextent.width < caps.minImageExtent.width)
+        actextent.width = caps.minImageExtent.width;
+    if (actextent.height < caps.minImageExtent.height)
+        actextent.height = caps.minImageExtent.height;
+    if (actextent.width > caps.maxImageExtent.width)
+        actextent.width = caps.maxImageExtent.width;
+    if (actextent.height > caps.maxImageExtent.height)
+        actextent.height = caps.maxImageExtent.height;
 
-        return actextent;
-    }
+    inf_debug_fmt("min image extent %dx%d!", caps.minImageExtent.width,caps.minImageExtent.height);
+    inf_debug_fmt("max image extent %dx%d!", caps.maxImageExtent.width,caps.maxImageExtent.height);
 
-    return caps.currentExtent;
+    inf_debug_fmt("clamped to width/height %dx%d!", actextent.width,actextent.height);
+
+    return actextent;
 }
 
 static void _vk_createSwapchain(inf_window* window) {
     inf_debug_msg("creating swapchain...");
 
-    _schainSupportDetails scsup = _vk_querySwapchainSupport(s.physicaldevice);
+    vk_windowRdata* rd = window->rdata;
+
+    _schainSupportDetails scsup = _vk_querySwapchainSupport(window, s.physicaldevice);
 
     VkSurfaceFormatKHR surffmt = _vk_chooseSwapSurfaceFormat(scsup.fmts, scsup.fmtamt);
     VkPresentModeKHR pmd = _vk_chooseSwapPresentMode(scsup.presentmodes, scsup.presentmodeamt);
@@ -79,7 +90,7 @@ static void _vk_createSwapchain(inf_window* window) {
 
             .flags = 0,
             
-            .surface = s.surface,
+            .surface = rd->surface,
 
             .minImageCount = imgs,
             .imageFormat = surffmt.format,
@@ -102,24 +113,26 @@ static void _vk_createSwapchain(inf_window* window) {
             .oldSwapchain = NULL,
         };
 
-    if (vkCreateSwapchainKHR(s.device, &createinfo, NULL, &s.swapchain) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(s.device, &createinfo, NULL, &rd->swapchain) != VK_SUCCESS) {
         inf_err_msg("failed to create swapchain!");
         exit(1);
     }
 
-    vkGetSwapchainImagesKHR(s.device, s.swapchain, &s.scimgamt, NULL);
-    s.swapchainimgs = inf_malloc(sizeof(VkImage) * s.scimgamt);
-    vkGetSwapchainImagesKHR(s.device, s.swapchain, &s.scimgamt, s.swapchainimgs);
+    vkGetSwapchainImagesKHR(s.device, rd->swapchain, &rd->scimgamt, NULL);
+    rd->swapchainimgs = inf_malloc(sizeof(VkImage) * rd->scimgamt);
+    vkGetSwapchainImagesKHR(s.device, rd->swapchain, &rd->scimgamt, rd->swapchainimgs);
 
-    s.swapchainimgfmt = surffmt.format;
-    s.swapchainext = ext;
+    rd->swapchainimgfmt = surffmt.format;
+    rd->swapchainext = ext;
 
     inf_debug_msg("created swapchain!");
 }
 
-static void _vk_deleteSwapchain(void) {
-    inf_free(s.swapchainimgs);
-    vkDestroySwapchainKHR(s.device, s.swapchain, NULL);
+static void _vk_deleteSwapchain(inf_window* window) {
+    vk_windowRdata* rd = window->rdata;
+
+    inf_free(rd->swapchainimgs);
+    vkDestroySwapchainKHR(s.device, rd->swapchain, NULL);
 
     inf_debug_msg("deleted swapchain!");
 }

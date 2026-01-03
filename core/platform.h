@@ -8,11 +8,13 @@ typedef struct inf_windowDesc {
     const char* title;
 
     bool resizable;
+    bool hidden;
 } inf_windowDesc;
 
 typedef struct inf_window {
     void* data;
-    const inf_windowDesc desc;
+    void* rdata;
+    inf_windowDesc desc;
 } inf_window;
 
 typedef struct inf_platImpl {

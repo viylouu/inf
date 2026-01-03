@@ -46,7 +46,7 @@ static _queueFamine _vk_findQueueFamilies(VkPhysicalDevice device) {
         }
 
         VkBool32 canpresent = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, s.surface, &canpresent); // !!!! uses surface! will not work for multiple windows!!!
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, s.twr->surface, &canpresent); 
         if (canpresent) {
             famine.presentfam = i;
             famine.haspresentfam = true;
@@ -104,7 +104,7 @@ typedef struct _schainSupportDetails {
 } _schainSupportDetails;
 
 // REMEMBER TO FREE fmts AND presentmodes
-static _schainSupportDetails _vk_querySwapchainSupport(VkPhysicalDevice device) {
+static _schainSupportDetails _vk_querySwapchainSupport(inf_window* window, VkPhysicalDevice device) {
     _schainSupportDetails details = {
             .caps = 0,
 
@@ -115,17 +115,19 @@ static _schainSupportDetails _vk_querySwapchainSupport(VkPhysicalDevice device) 
             .presentmodeamt = 0,
         };
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, s.surface, &details.caps); // !!!! uses surface!
+    vk_windowRdata* rd = window->rdata;
 
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, s.surface, &details.fmtamt, NULL); // !!!! uses surface!
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, rd->surface, &details.caps);
+
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, rd->surface, &details.fmtamt, NULL);
     details.fmts = inf_malloc(sizeof(VkSurfaceFormatKHR) * details.fmtamt);
     if (details.fmtamt != 0)
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, s.surface, &details.fmtamt, details.fmts); // !!!! uses surface!
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, rd->surface, &details.fmtamt, details.fmts);
 
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, s.surface, &details.presentmodeamt, NULL); // !!!! uses surface!
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, rd->surface, &details.presentmodeamt, NULL);
     details.presentmodes = inf_malloc(sizeof(VkPresentModeKHR) * details.presentmodeamt);
     if (details.presentmodeamt != 0)
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, s.surface, &details.presentmodeamt, details.presentmodes); // !!!! uses surface!
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, rd->surface, &details.presentmodeamt, details.presentmodes);
 
     inf_debug_msg("queried swapchain support!");
 
@@ -139,7 +141,7 @@ static bool _vk_isDeviceSuitable(VkPhysicalDevice device) {
 
     bool adequateswapchain = false;
     if (extssupported) {
-        _schainSupportDetails details = _vk_querySwapchainSupport(device);
+        _schainSupportDetails details = _vk_querySwapchainSupport(&s.tempwindow, device);
         adequateswapchain = details.fmtamt != 0 && details.presentmodeamt != 0;
         inf_free(details.fmts);
         inf_free(details.presentmodes);
@@ -240,7 +242,7 @@ static void _vk_createLogicalDevice(void) {
         };
     
     if (validation) {
-        createinfo.enabledLayerCount = sizeof(validations)/sizeof(validations[0]);
+        createinfo.enabledLayerCount = validamt;
         createinfo.ppEnabledLayerNames = validations;
     }
 

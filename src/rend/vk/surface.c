@@ -11,9 +11,10 @@
 
 #include <string.h>
 
-// tie to windows as an attachment! (another void* in inf_window?)
 static void _vk_createSurface(inf_window* window) {
     inf_debug_msg("creating surface...");
+
+    vk_windowRdata* rd = window->rdata;
 
     if (!strcmp(inf_cur_plat_impl->api, "xlib")) {
         VkXlibSurfaceCreateInfoKHR createinfo = {
@@ -26,7 +27,7 @@ static void _vk_createSurface(inf_window* window) {
                 .window = *(Window*)inf_plat_XLIB_getWindow(window),
             };
 
-        if (vkCreateXlibSurfaceKHR(s.instance, &createinfo, NULL, &s.surface) != VK_SUCCESS) {
+        if (vkCreateXlibSurfaceKHR(s.instance, &createinfo, NULL, &rd->surface) != VK_SUCCESS) {
             inf_err_msg("failed to create window surface! (xlib)");
             exit(1);
         }
@@ -35,7 +36,8 @@ static void _vk_createSurface(inf_window* window) {
     inf_debug_msg("created surface!");
 }
 
-static void _vk_deleteSurface(void) {
-    vkDestroySurfaceKHR(s.instance, s.surface, NULL);
+static void _vk_deleteSurface(inf_window* window) {
+    vk_windowRdata* rd = window->rdata;
+    vkDestroySurfaceKHR(s.instance, rd->surface, NULL);
     inf_debug_msg("deleted surface!");
 }

@@ -17,10 +17,15 @@ bool inf_plat_poll(inf_window* window) {
     return inf_cur_plat_impl->poll(window);
 }
 
+// reason these call the rdata funcs is for renderer to make a window by calling the inf_cur_plat_impl ver instead of the helper funcs to bypass calling its own make rdata functions so it doesent do that before it creates the logical device for vulkan by creating a temp window
+// ^^^ thats alot of text
 inf_window inf_plat_makeWindow(inf_windowDesc desc) {
-    return inf_cur_plat_impl->makeWindow(desc);
+    inf_window w = inf_cur_plat_impl->makeWindow(desc);
+    inf_rend_PLAT_makeWindowRdata(&w);
+    return w;
 }
 void inf_plat_destWindow(inf_window* window) {
+    inf_rend_PLAT_destWindowRdata(window);
     inf_cur_plat_impl->destWindow(window);
 }
 

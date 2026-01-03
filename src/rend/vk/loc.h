@@ -5,13 +5,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-static struct state {
-    VkInstance instance;
-    VkPhysicalDevice physicaldevice;
-    VkDevice device;
-    VkQueue graphicsqueue;
-    VkQueue presentqueue;
-
+typedef struct vk_windowRdata {
     VkSurfaceKHR surface;
     VkSwapchainKHR swapchain;
     VkImage* swapchainimgs;
@@ -20,11 +14,24 @@ static struct state {
     VkExtent2D swapchainext;
     VkImageView* swapchainimgviews;
         u32 scimgviewamt;
+} vk_windowRdata;
+
+static struct state {
+    VkInstance instance;
+    VkPhysicalDevice physicaldevice;
+    VkDevice device;
+    VkQueue graphicsqueue;
+    VkQueue presentqueue;
+
+    // basically only for device creation
+    inf_window tempwindow;
+    vk_windowRdata* twr; // tempwindow rdata
 } s;
 
 static const char* validations[] = {
     "VK_LAYER_KHRONOS_validation",
 };
+static const u32 validamt = 1;
 
 #ifdef INF_DEBUG
 static const bool validation = true;

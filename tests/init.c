@@ -10,6 +10,7 @@ int main() {
     inf_rend_useImpl(&inf_vk_impl);
 
     inf_plat_init();
+    inf_rend_init();
 
     inf_window win = inf_plat_makeWindow((inf_windowDesc){
                 .width = 800,
@@ -17,9 +18,8 @@ int main() {
                 .title = "idgaf",
 
                 .resizable = false,
+                .hidden = false,
             });
-
-    inf_rend_init(&win);
 
     /*
     u64 frames = 0;
