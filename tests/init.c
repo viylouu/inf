@@ -21,7 +21,7 @@ int main() {
                 .hidden = false,
             });
 
-    /*
+    
     u64 frames = 0;
     f64 start = inf_plat_getTime();
     while (inf_plat_poll(&win)) {
@@ -33,9 +33,9 @@ int main() {
         }
         frames++;
     }
-    */
+    
 
-    inf_err_msg("hi it worked! this is the middle :3");
+    //inf_err_msg("hi it worked! this is the middle :3");
 
     inf_plat_destWindow(&win);
 
