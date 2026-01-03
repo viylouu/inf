@@ -4,6 +4,7 @@
 #include "instance.c"
 #include "device.c"
 #include "swapchain.c"
+#include "imageviews.c"
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
@@ -20,12 +21,17 @@ static void vk_init(inf_window* window) {
     _vk_pickPhysicalDevice();
     _vk_createLogicalDevice();
     _vk_createSwapchain(window);
+    _vk_createImageViews();
 
     inf_debug_msg("initialized vulkan!");
 }
 static void vk_exit(void) {
     inf_debug_msg("exiting vulkan...");
 
+    for (u32 i = 0; i < s.scimgviewamt; ++i)
+        vkDestroyImageView(s.device, s.swapchainimgviews[i], NULL);
+
+    inf_free(s.swapchainimgviews);
     inf_free(s.swapchainimgs);
     vkDestroySwapchainKHR(s.device, s.swapchain, NULL);
 

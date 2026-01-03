@@ -18,6 +18,8 @@ static struct state {
         u32 scimgamt;
     VkFormat swapchainimgfmt;
     VkExtent2D swapchainext;
+    VkImageView* swapchainimgviews;
+        u32 scimgviewamt;
 } s;
 
 static const char* validations[] = {

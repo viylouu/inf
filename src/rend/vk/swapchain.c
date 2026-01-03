@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "vk.h"
+//#include "vk.h"
 #include "loc.h"
 
 #include "device.c"
