@@ -255,3 +255,7 @@ static void _vk_createLogicalDevice(void) {
     inf_debug_msg("created logical device!");
 }
 
+static void _vk_deleteDevice(void) {
+    vkDestroyDevice(s.device, NULL);
+    inf_debug_msg("deleted device!");
+}

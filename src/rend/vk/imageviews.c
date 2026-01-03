@@ -50,3 +50,12 @@ static void _vk_createImageViews(void) {
 
     inf_debug_msg("created image views!");
 }
+
+static void _vk_deleteImageViews(void) {
+    for (u32 i = 0; i < s.scimgviewamt; ++i)
+        vkDestroyImageView(s.device, s.swapchainimgviews[i], NULL);
+
+    inf_free(s.swapchainimgviews);
+
+    inf_debug_msg("deleted image views!");
+}

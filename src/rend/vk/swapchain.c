@@ -13,30 +13,6 @@
 
 #include <string.h>
 
-// tie to windows as an attachment! (another void* in inf_window?)
-static void _vk_createSurface(inf_window* window) {
-    inf_debug_msg("creating surface...");
-
-    if (!strcmp(inf_cur_plat_impl->api, "xlib")) {
-        VkXlibSurfaceCreateInfoKHR createinfo = {
-                .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-                .pNext = NULL,
-
-                .flags = 0,
-
-                .dpy = (Display*)inf_plat_XLIB_getDisplay(),
-                .window = *(Window*)inf_plat_XLIB_getWindow(window),
-            };
-
-        if (vkCreateXlibSurfaceKHR(s.instance, &createinfo, NULL, &s.surface) != VK_SUCCESS) {
-            inf_err_msg("failed to create window surface! (xlib)");
-            exit(1);
-        }
-    }
-
-    inf_debug_msg("created surface!");
-}
-
 VkSurfaceFormatKHR _vk_chooseSwapSurfaceFormat(VkSurfaceFormatKHR* availablefmts, u32 fmtamt) {
     for (u32 i = 0; i < fmtamt; ++i) {
         VkSurfaceFormatKHR aft = availablefmts[i];
@@ -141,3 +117,9 @@ static void _vk_createSwapchain(inf_window* window) {
     inf_debug_msg("created swapchain!");
 }
 
+static void _vk_deleteSwapchain(void) {
+    inf_free(s.swapchainimgs);
+    vkDestroySwapchainKHR(s.device, s.swapchain, NULL);
+
+    inf_debug_msg("deleted swapchain!");
+}

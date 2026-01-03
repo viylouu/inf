@@ -107,3 +107,7 @@ next:;
     inf_debug_msg("created instance!");
 }
 
+static void _vk_deleteInstance(void) {
+    vkDestroyInstance(s.instance, NULL);
+    inf_debug_msg("deleted instance!");
+}
