@@ -1,11 +1,6 @@
-add_executable(inf_init init.c)
+add_executable(inf_triangle triangle.c)
 
-target_link_libraries(inf_init
+target_link_libraries(inf_triangle
     PRIVATE
         inf
 )
-
-#target_include_directories(inf_init
-#    PRIVATE
-#        ${PROJECT_SOURCE_DIR}/include
-#)

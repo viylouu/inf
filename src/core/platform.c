@@ -1,5 +1,7 @@
 #include "../../main.h"
 
+#include <string.h>
+
 const inf_platImpl* inf_cur_plat_impl;
 
 void inf_plat_useImpl(const inf_platImpl* impl) {
@@ -38,8 +40,18 @@ const char** inf_plat_VK_reqInstExts(u32* count) {
 }
 
 void* inf_plat_XLIB_getWindow(inf_window* window) {
-    return inf_cur_plat_impl->XLIB_getWindow(window);
+    if (!strcmp(inf_cur_plat_impl->api, "xlib"))
+        return inf_cur_plat_impl->XLIB_getWindow(window);
+    else {
+        inf_warn_msg("tried to call xlib function on non xlib plat! returning null! (XLIB_getWindow)");
+        return NULL;
+    }
 }
 void* inf_plat_XLIB_getDisplay(void) {
-    return inf_cur_plat_impl->XLIB_getDisplay();
+    if (!strcmp(inf_cur_plat_impl->api, "xlib"))
+        return inf_cur_plat_impl->XLIB_getDisplay();
+    else {
+        inf_warn_msg("tried to call xlib function on non xlib plat! returning null! (XLIB_getDisplay)");
+        return NULL;
+    }
 }

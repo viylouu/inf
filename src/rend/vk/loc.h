@@ -16,6 +16,10 @@ typedef struct vk_windowRdata {
         u32 scimgviewamt;
 } vk_windowRdata;
 
+typedef struct vk_shaderData {
+    VkShaderModule module;
+} vk_shaderData;
+
 static struct state {
     VkInstance instance;
     VkPhysicalDevice physicaldevice;
