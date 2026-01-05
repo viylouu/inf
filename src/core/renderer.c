@@ -20,6 +20,13 @@ void inf_rend_destShader(inf_shader* shader) {
     inf_cur_rend_impl->destShader(shader);
 }
 
+inf_pipeline inf_rend_makePipeline(inf_pipelineDesc desc) {
+    return inf_cur_rend_impl->makePipeline(desc);
+}
+void inf_rend_destPipeline(inf_pipeline* pipeline) {
+    inf_cur_rend_impl->destPipeline(pipeline);
+}
+
 void inf_rend_PLAT_makeWindowRdata(inf_window* window) {
     inf_cur_rend_impl->PLAT_makeWindowRdata(window);
 }

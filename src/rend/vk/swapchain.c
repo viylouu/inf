@@ -13,7 +13,7 @@
 
 #include <string.h>
 
-VkSurfaceFormatKHR _vk_chooseSwapSurfaceFormat(VkSurfaceFormatKHR* availablefmts, u32 fmtamt) {
+static VkSurfaceFormatKHR _vk_chooseSwapSurfaceFormat(VkSurfaceFormatKHR* availablefmts, u32 fmtamt) {
     for (u32 i = 0; i < fmtamt; ++i) {
         VkSurfaceFormatKHR aft = availablefmts[i];
         if (aft.format == VK_FORMAT_B8G8R8A8_SRGB && aft.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -23,7 +23,7 @@ VkSurfaceFormatKHR _vk_chooseSwapSurfaceFormat(VkSurfaceFormatKHR* availablefmts
     return availablefmts[0];
 }
 
-VkPresentModeKHR _vk_chooseSwapPresentMode(VkPresentModeKHR* availablepmds, u32 pmdamt) {
+static VkPresentModeKHR _vk_chooseSwapPresentMode(VkPresentModeKHR* availablepmds, u32 pmdamt) {
     for (u32 i = 0; i < pmdamt; ++i) {
         VkPresentModeKHR apmd = availablepmds[i];
         if (apmd == VK_PRESENT_MODE_MAILBOX_KHR)
@@ -33,7 +33,7 @@ VkPresentModeKHR _vk_chooseSwapPresentMode(VkPresentModeKHR* availablepmds, u32 
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D _vk_chooseSwapExtent(inf_window* window, VkSurfaceCapabilitiesKHR caps) {
+static VkExtent2D _vk_chooseSwapExtent(inf_window* window, VkSurfaceCapabilitiesKHR caps) {
     VkExtent2D actextent = caps.currentExtent;
 
     if (caps.currentExtent.width == UINT32_MAX) {

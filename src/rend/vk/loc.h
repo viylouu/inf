@@ -14,11 +14,17 @@ typedef struct vk_windowRdata {
     VkExtent2D swapchainext;
     VkImageView* swapchainimgviews;
         u32 scimgviewamt;
+
+    VkRenderPass renderpass;
 } vk_windowRdata;
 
 typedef struct vk_shaderData {
     VkShaderModule module;
 } vk_shaderData;
+
+typedef struct vk_pipelineData {
+    VkPipelineLayout layout;
+} vk_pipelineData;
 
 static struct state {
     VkInstance instance;

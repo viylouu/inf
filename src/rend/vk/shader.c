@@ -9,9 +9,9 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include <string.h>
+//#include <string.h>
 
-VkShaderModule _vk_createShaderModule(const char* code, u32 amt) {
+static VkShaderModule _vk_createShaderModule(const char* code, u32 amt) {
     VkShaderModuleCreateInfo createinfo = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             .pNext = NULL,
@@ -33,7 +33,7 @@ VkShaderModule _vk_createShaderModule(const char* code, u32 amt) {
     return mod;
 }
 
-void _vk_deleteShaderModule(VkShaderModule mod) {
+static void _vk_deleteShaderModule(VkShaderModule mod) {
     vkDestroyShaderModule(s.device, mod, NULL);
     inf_debug_msg("deleted shader module!");
 }

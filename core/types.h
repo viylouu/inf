@@ -81,6 +81,8 @@ typedef double f64;
 
 #ifndef inf_free
 #include <stdlib.h>
-#define inf_free(var) \
-    free((var))
+#define inf_free(var) do { \
+    free((var)); \
+    (var) = NULL; \
+} while(0)
 #endif

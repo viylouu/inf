@@ -8,6 +8,8 @@
 #include "swapchain.c"
 #include "imageviews.c"
 #include "shader.c"
+#include "pipeline.c"
+#include "rendpass.c"
 
 static void vk_init(void) {
     inf_debug_msg("initializing vulkan...");
@@ -71,6 +73,28 @@ static void vk_destShader(inf_shader* shader) {
     inf_debug_msg("deleted shader!");
 }
 
+static inf_pipeline vk_makePipeline(inf_pipelineDesc desc) {
+    inf_debug_msg("making pipeline...");
+
+    inf_pipeline pipeline = (inf_pipeline){
+            .data = inf_malloc(sizeof(vk_pipelineData)),
+            .desc = desc,
+        };
+
+    _vk_createPipeline(&pipeline);
+
+    inf_debug_msg("made pipeline!");
+    return pipeline;
+}
+static void vk_destPipeline(inf_pipeline* pipeline) {
+    inf_debug_msg("deleting pipeline...");
+
+    _vk_deletePipeline(pipeline);
+    inf_free(pipeline->data);
+
+    inf_debug_msg("deleted pipeline!");
+}
+
 static void vk_PLAT_makeWindowRdata(inf_window* window) {
     inf_debug_msg("making window rdata...");
     
@@ -79,12 +103,14 @@ static void vk_PLAT_makeWindowRdata(inf_window* window) {
     _vk_createSurface(window);
     _vk_createSwapchain(window);
     _vk_createImageViews(window);
+    _vk_createRenderPass(window);
 
     inf_debug_msg("made window rdata!");
 }
 static void vk_PLAT_destWindowRdata(inf_window* window) {
     inf_debug_msg("deleting window rdata...");
 
+    _vk_deleteRenderPass(window);
     _vk_deleteImageViews(window);
     _vk_deleteSwapchain(window);
     _vk_deleteSurface(window);
@@ -100,6 +126,9 @@ const inf_rendImpl inf_vk_impl = (inf_rendImpl){
 
         .makeShader = vk_makeShader,
         .destShader = vk_destShader,
+
+        .makePipeline = vk_makePipeline,
+        .destPipeline = vk_destPipeline,
 
         .PLAT_makeWindowRdata = vk_PLAT_makeWindowRdata,
         .PLAT_destWindowRdata = vk_PLAT_destWindowRdata,
