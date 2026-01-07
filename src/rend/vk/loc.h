@@ -34,6 +34,7 @@ static struct state {
     VkDevice device;
     VkQueue graphicsqueue;
     VkQueue presentqueue;
+    VkCommandPool cmdpool;
 
     // basically only for device creation
     inf_window tempwindow;
@@ -55,3 +56,16 @@ static const char* devexts[] = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 static const u32 devextamt = 1;
+
+// no clue why its famine but ok
+typedef struct _queueFamine {
+    u32 graphicsfam;
+    bool hasgraphicsfam;
+
+    u32 presentfam;
+    bool haspresentfam;
+
+    bool complete;
+} _queueFamine;
+
+static _queueFamine _vk_findQueueFamilies(VkPhysicalDevice device);

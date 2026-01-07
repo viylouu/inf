@@ -2,7 +2,6 @@
 //#include "loc.h"
 
 #include "instance.c"
-#include "device.c"
 #include "loc.h"
 #include "surface.c"
 #include "swapchain.c"
@@ -11,6 +10,8 @@
 #include "pipeline.c"
 #include "rendpass.c"
 #include "framebuffer.c"
+#include "commandpool.c"
+#include "device.c" // must be after commandpool
 
 static void vk_init(void) {
     inf_debug_msg("initializing vulkan...");
@@ -33,10 +34,14 @@ static void vk_init(void) {
     _vk_pickPhysicalDevice();
     _vk_createLogicalDevice();
 
+    _vk_createCommandPool();
+
     inf_debug_msg("initialized vulkan!");
 }
 static void vk_exit(void) {
     inf_debug_msg("exiting vulkan...");
+
+    _vk_deleteCommandPool();
 
     _vk_deleteDevice();
 

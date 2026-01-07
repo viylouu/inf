@@ -11,17 +11,6 @@
 
 #include <string.h>
 
-// no clue why its famine but ok
-typedef struct _queueFamine {
-    u32 graphicsfam;
-    bool hasgraphicsfam;
-
-    u32 presentfam;
-    bool haspresentfam;
-
-    bool complete;
-} _queueFamine;
-
 static _queueFamine _vk_findQueueFamilies(VkPhysicalDevice device) {
     _queueFamine famine = {
             .graphicsfam = 0,
