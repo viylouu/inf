@@ -87,7 +87,7 @@ static void _vk_deleteRenderPass(inf_window* window) {
 }
 
 
-static void _vk_startRenderPass(inf_window* window, u32 index, f32 clear[4]) {
+static void _vk_startRenderPass(inf_window* window, u32 index, f32 clear[4], u32 frame) {
     vk_windowRdata* rd = window->rdata;
 
     VkClearValue clearcolor = {{{clear[0],clear[1],clear[2],clear[3]}}};
@@ -106,9 +106,9 @@ static void _vk_startRenderPass(inf_window* window, u32 index, f32 clear[4]) {
             .pClearValues = &clearcolor,
         };
 
-    vkCmdBeginRenderPass(s.cmdbuffer, &renderpassinfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(s.cmdbuffers[frame], &renderpassinfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-static void _vk_endRenderPass(void) {
-    vkCmdEndRenderPass(s.cmdbuffer);
+static void _vk_endRenderPass(u32 frame) {
+    vkCmdEndRenderPass(s.cmdbuffers[frame]);
 }

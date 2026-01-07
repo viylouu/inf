@@ -11,7 +11,7 @@
 
 //#include <string.h>
 
-static void _vk_createCommandBuffer(void) {
+static void _vk_createCommandBuffers(void) {
     inf_debug_msg("creating command buffer...");
 
     VkCommandBufferAllocateInfo allocinfo = {
@@ -22,10 +22,10 @@ static void _vk_createCommandBuffer(void) {
             
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 
-            .commandBufferCount = 1,
+            .commandBufferCount = sizeof(s.cmdbuffers)/sizeof(s.cmdbuffers[0]),
         };
 
-    if (vkAllocateCommandBuffers(s.device, &allocinfo, &s.cmdbuffer) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(s.device, &allocinfo, s.cmdbuffers) != VK_SUCCESS) {
         inf_err_msg("failed to create command buffer!");
         exit(1);
     }
@@ -33,7 +33,7 @@ static void _vk_createCommandBuffer(void) {
     inf_debug_msg("created command buffer!");
 }
 
-static void _vk_deleteCommandBuffer(void) {
+static void _vk_deleteCommandBuffers(void) {
     // apparently isnt needed?
 
     //inf_debug_msg("deleting command buffer...");
@@ -42,7 +42,7 @@ static void _vk_deleteCommandBuffer(void) {
 
     //inf_debug_msg("deleted command buffer!");
 
-    inf_debug_msg("note: command buffer does not need to be freed!");
+    inf_debug_msg("note: command buffers do not need to be freed!");
 }
 
 
@@ -79,13 +79,13 @@ static void _vk_endCommandBuffer(VkCommandBuffer buffer) {
 }
 
 
-static void _vk_submitCommandBuffer(VkCommandBuffer* buffer) {
+static void _vk_submitCommandBuffer(VkCommandBuffer* buffer, u32 frame) {
     inf_debug_msg("submitting command buffer...");
 
-    VkSemaphore waitsemaphores[] = { s.imgavailablesem };
+    VkSemaphore waitsemaphores[] = { s.imgavailablesems[frame] };
     VkPipelineStageFlags waitstages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-    VkSemaphore signalsemaphores[] = { s.renderfinsem };
+    VkSemaphore signalsemaphores[] = { s.renderfinsems[frame] };
 
     VkSubmitInfo submitinfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -102,7 +102,7 @@ static void _vk_submitCommandBuffer(VkCommandBuffer* buffer) {
             .pSignalSemaphores = signalsemaphores,
         };
 
-    if (vkQueueSubmit(s.graphicsqueue, 1, &submitinfo, s.inflightfence) != VK_SUCCESS) {
+    if (vkQueueSubmit(s.graphicsqueue, 1, &submitinfo, s.inflightfences[frame]) != VK_SUCCESS) {
         inf_err_msg("failed to submit command buffer!");
         exit(1);
     }

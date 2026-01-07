@@ -37,7 +37,7 @@ static void vk_init(void) {
     _vk_createLogicalDevice();
 
     _vk_createCommandPool();
-    _vk_createCommandBuffer();
+    _vk_createCommandBuffers();
 
     _vk_createSyncObjects();
 
@@ -48,7 +48,7 @@ static void vk_exit(void) {
 
     _vk_deleteSyncObjects();
 
-    _vk_deleteCommandBuffer();
+    _vk_deleteCommandBuffers();
     _vk_deleteCommandPool();
 
     _vk_deleteDevice();
@@ -114,12 +114,12 @@ static void vk_frameStart(inf_window* window, f32 clear[4]) {
 
     vk_windowRdata* rd = window->rdata;
 
-    _vk_waitForFences();
-    rd->curimgindex = _vk_acquireSwapchainImage(window);
+    _vk_waitForFences(rd->curframe);
+    rd->curimgindex = _vk_acquireSwapchainImage(window, rd->curframe);
 
-    _vk_resetCommandBuffer(s.cmdbuffer);
-    _vk_startCommandBuffer(s.cmdbuffer, rd->curimgindex);
-    _vk_startRenderPass(window, rd->curimgindex, clear);
+    _vk_resetCommandBuffer(s.cmdbuffers[rd->curframe]);
+    _vk_startCommandBuffer(s.cmdbuffers[rd->curframe], rd->curimgindex);
+    _vk_startRenderPass(window, rd->curimgindex, clear, rd->curframe);
 
     inf_debug_msg("started frame!");
 }
@@ -128,11 +128,15 @@ static void vk_frameEnd(inf_window* window) {
 
     vk_windowRdata* rd = window->rdata;
 
-    _vk_endRenderPass();
-    _vk_endCommandBuffer(s.cmdbuffer);
+    _vk_endRenderPass(rd->curframe);
+    _vk_endCommandBuffer(s.cmdbuffers[rd->curframe]);
 
-    _vk_submitCommandBuffer(&s.cmdbuffer);
-    _vk_presentSwapchain(window, rd->curimgindex);
+    _vk_submitCommandBuffer(&s.cmdbuffers[rd->curframe], rd->curframe);
+    _vk_presentSwapchain(window, rd->curimgindex, rd->curframe);
+
+    ++rd->curframe;
+    if (rd->curframe >= INF_VK_MAX_FRAMES_IN_FLIGHT)
+        rd->curframe = 0;
 
     inf_debug_msg("ended frame!");
 }
@@ -141,6 +145,10 @@ static void vk_PLAT_makeWindowRdata(inf_window* window) {
     inf_debug_msg("making window rdata...");
     
     window->rdata = inf_malloc(sizeof(vk_windowRdata));
+
+    vk_windowRdata* rd = window->rdata;
+    rd->curframe = 0;
+    rd->curimgindex = 0;
 
     _vk_createSurface(window);
     _vk_createSwapchain(window);
