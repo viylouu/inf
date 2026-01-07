@@ -14,6 +14,8 @@ typedef struct vk_windowRdata {
     VkExtent2D swapchainext;
     VkImageView* swapchainimgviews;
         u32 scimgviewamt;
+    VkFramebuffer* swapchainfbufs;
+        u32 scfbufamt;
 
     VkRenderPass renderpass;
 } vk_windowRdata;

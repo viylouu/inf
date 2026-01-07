@@ -10,6 +10,7 @@
 #include "shader.c"
 #include "pipeline.c"
 #include "rendpass.c"
+#include "framebuffer.c"
 
 static void vk_init(void) {
     inf_debug_msg("initializing vulkan...");
@@ -104,12 +105,14 @@ static void vk_PLAT_makeWindowRdata(inf_window* window) {
     _vk_createSwapchain(window);
     _vk_createImageViews(window);
     _vk_createRenderPass(window);
+    _vk_createFramebuffers(window);
 
     inf_debug_msg("made window rdata!");
 }
 static void vk_PLAT_destWindowRdata(inf_window* window) {
     inf_debug_msg("deleting window rdata...");
 
+    _vk_deleteFramebuffers(window);
     _vk_deleteRenderPass(window);
     _vk_deleteImageViews(window);
     _vk_deleteSwapchain(window);
