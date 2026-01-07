@@ -11,7 +11,7 @@
 
 //#include <string.h>
 
-void _vk_createCommandPool(void) {
+static void _vk_createCommandPool(void) {
     inf_debug_msg("creating command pool...");
 
     _queueFamine famine = _vk_findQueueFamilies(s.physicaldevice);
@@ -33,7 +33,7 @@ void _vk_createCommandPool(void) {
     inf_debug_msg("created command pool!");
 }
 
-void _vk_deleteCommandPool(void) {
+static void _vk_deleteCommandPool(void) {
     inf_debug_msg("deleting command pool...");
 
     vkDestroyCommandPool(s.device, s.cmdpool, NULL);

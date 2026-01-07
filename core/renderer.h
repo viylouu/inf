@@ -33,6 +33,9 @@ typedef struct inf_rendImpl {
     inf_pipeline (*makePipeline)(inf_pipelineDesc desc);
     void (*destPipeline)(inf_pipeline* pipeline);
 
+    void (*frameStart)(inf_window* window, f32 clear[4]);
+    void (*frameEnd)(inf_window* window);
+
     void (*PLAT_makeWindowRdata)(inf_window* window);
     void (*PLAT_destWindowRdata)(inf_window* window);
 } inf_rendImpl;
@@ -49,6 +52,9 @@ void inf_rend_destShader(inf_shader* shader);
 
 inf_pipeline inf_rend_makePipeline(inf_pipelineDesc desc);
 void inf_rend_destPipeline(inf_pipeline* pipeline);
+
+void inf_rend_frameStart(inf_window* window, f32 clear[4]);
+void inf_rend_frameEnd(inf_window* window);
 
 void inf_rend_PLAT_makeWindowRdata(inf_window* window);
 void inf_rend_PLAT_destWindowRdata(inf_window* window);

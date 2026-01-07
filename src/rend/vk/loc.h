@@ -18,6 +18,8 @@ typedef struct vk_windowRdata {
         u32 scfbufamt;
 
     VkRenderPass renderpass;
+
+    u32 curimgindex;
 } vk_windowRdata;
 
 typedef struct vk_shaderData {
@@ -35,6 +37,11 @@ static struct state {
     VkQueue graphicsqueue;
     VkQueue presentqueue;
     VkCommandPool cmdpool;
+    VkCommandBuffer cmdbuffer;
+
+    VkSemaphore imgavailablesem;
+    VkSemaphore renderfinsem;
+    VkFence inflightfence;
 
     // basically only for device creation
     inf_window tempwindow;

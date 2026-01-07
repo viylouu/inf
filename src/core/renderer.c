@@ -27,6 +27,13 @@ void inf_rend_destPipeline(inf_pipeline* pipeline) {
     inf_cur_rend_impl->destPipeline(pipeline);
 }
 
+void inf_rend_frameStart(inf_window* window, f32 clear[4]) {
+    inf_cur_rend_impl->frameStart(window, clear);
+}
+void inf_rend_frameEnd(inf_window* window) {
+    inf_cur_rend_impl->frameEnd(window);
+}
+
 void inf_rend_PLAT_makeWindowRdata(inf_window* window) {
     inf_cur_rend_impl->PLAT_makeWindowRdata(window);
 }

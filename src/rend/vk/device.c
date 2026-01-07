@@ -250,3 +250,10 @@ static void _vk_deleteDevice(void) {
     vkDestroyDevice(s.device, NULL);
     inf_debug_msg("deleted device!");
 }
+
+
+static void _vk_deviceWaitIdle(void) {
+    inf_debug_msg("device waiting idle...");
+    vkDeviceWaitIdle(s.device);
+    inf_debug_msg("device waited idle!");
+}

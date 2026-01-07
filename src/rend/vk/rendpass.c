@@ -42,6 +42,17 @@ static void _vk_createRenderPass(inf_window* window) {
             .pColorAttachments = &colorattachref,
         };
 
+    VkSubpassDependency dependency = {
+            .srcSubpass = VK_SUBPASS_EXTERNAL,
+            .dstSubpass = 0,
+
+            .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .srcAccessMask = 0,
+
+            .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
+        };
+
     VkRenderPassCreateInfo renderpassinfo = {
             .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
             .pNext = NULL,
@@ -54,8 +65,8 @@ static void _vk_createRenderPass(inf_window* window) {
             .subpassCount = 1,
             .pSubpasses = &subpass,
 
-            .dependencyCount = 0,
-            .pDependencies = NULL,
+            .dependencyCount = 1,
+            .pDependencies = &dependency,
         };
 
     if (vkCreateRenderPass(s.device, &renderpassinfo, NULL, &rd->renderpass) != VK_SUCCESS) {
@@ -73,4 +84,31 @@ static void _vk_deleteRenderPass(inf_window* window) {
     vkDestroyRenderPass(s.device, rd->renderpass, NULL);
 
     inf_debug_msg("deleted render pass!");
+}
+
+
+static void _vk_startRenderPass(inf_window* window, u32 index, f32 clear[4]) {
+    vk_windowRdata* rd = window->rdata;
+
+    VkClearValue clearcolor = {{{clear[0],clear[1],clear[2],clear[3]}}};
+
+    VkRenderPassBeginInfo renderpassinfo = {
+            .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+            .pNext = NULL,
+
+            .renderPass = rd->renderpass,
+            .framebuffer = rd->swapchainfbufs[index],
+
+            .renderArea.offset = {0,0},
+            .renderArea.extent = rd->swapchainext,
+
+            .clearValueCount = 1,
+            .pClearValues = &clearcolor,
+        };
+
+    vkCmdBeginRenderPass(s.cmdbuffer, &renderpassinfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+static void _vk_endRenderPass(void) {
+    vkCmdEndRenderPass(s.cmdbuffer);
 }

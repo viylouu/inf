@@ -136,3 +136,44 @@ static void _vk_deleteSwapchain(inf_window* window) {
 
     inf_debug_msg("deleted swapchain!");
 }
+
+
+static u32 _vk_acquireSwapchainImage(inf_window* window) {
+    vk_windowRdata* rd = window->rdata;
+
+    u32 index;
+    vkAcquireNextImageKHR(s.device, rd->swapchain, UINT64_MAX, s.imgavailablesem, NULL, &index);
+
+    inf_debug_msg("acquired swapchain image!");
+    return index;
+}
+
+
+static void _vk_presentSwapchain(inf_window* window, u32 index) {
+    inf_debug_msg("presenting swapchain...");
+
+    vk_windowRdata* rd = window->rdata;
+
+    VkSemaphore signalsemaphores[] = { s.renderfinsem };
+
+    VkSwapchainKHR swapchains[] = { rd->swapchain };
+
+    VkPresentInfoKHR presentinfo = {
+            .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            .pNext = NULL,
+
+            .waitSemaphoreCount = sizeof(signalsemaphores)/sizeof(signalsemaphores[0]),
+            .pWaitSemaphores = signalsemaphores,
+
+            .swapchainCount = sizeof(swapchains)/sizeof(swapchains[0]),
+            .pSwapchains = swapchains,
+
+            .pImageIndices = &index,
+
+            .pResults = NULL,
+        };
+
+    vkQueuePresentKHR(s.presentqueue, &presentinfo);
+
+    inf_debug_msg("presented swapchain!");
+}

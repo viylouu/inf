@@ -11,7 +11,9 @@
 #include "rendpass.c"
 #include "framebuffer.c"
 #include "commandpool.c"
-#include "device.c" // must be after commandpool
+#include "device.c"
+#include "commandbuffer.c"
+#include "sync.c"
 
 static void vk_init(void) {
     inf_debug_msg("initializing vulkan...");
@@ -35,12 +37,18 @@ static void vk_init(void) {
     _vk_createLogicalDevice();
 
     _vk_createCommandPool();
+    _vk_createCommandBuffer();
+
+    _vk_createSyncObjects();
 
     inf_debug_msg("initialized vulkan!");
 }
 static void vk_exit(void) {
     inf_debug_msg("exiting vulkan...");
 
+    _vk_deleteSyncObjects();
+
+    _vk_deleteCommandBuffer();
     _vk_deleteCommandPool();
 
     _vk_deleteDevice();
@@ -101,6 +109,34 @@ static void vk_destPipeline(inf_pipeline* pipeline) {
     inf_debug_msg("deleted pipeline!");
 }
 
+static void vk_frameStart(inf_window* window, f32 clear[4]) {
+    inf_debug_msg("starting frame...");
+
+    vk_windowRdata* rd = window->rdata;
+
+    _vk_waitForFences();
+    rd->curimgindex = _vk_acquireSwapchainImage(window);
+
+    _vk_resetCommandBuffer(s.cmdbuffer);
+    _vk_startCommandBuffer(s.cmdbuffer, rd->curimgindex);
+    _vk_startRenderPass(window, rd->curimgindex, clear);
+
+    inf_debug_msg("started frame!");
+}
+static void vk_frameEnd(inf_window* window) {
+    inf_debug_msg("ending frame...");
+
+    vk_windowRdata* rd = window->rdata;
+
+    _vk_endRenderPass();
+    _vk_endCommandBuffer(s.cmdbuffer);
+
+    _vk_submitCommandBuffer(&s.cmdbuffer);
+    _vk_presentSwapchain(window, rd->curimgindex);
+
+    inf_debug_msg("ended frame!");
+}
+
 static void vk_PLAT_makeWindowRdata(inf_window* window) {
     inf_debug_msg("making window rdata...");
     
@@ -116,6 +152,8 @@ static void vk_PLAT_makeWindowRdata(inf_window* window) {
 }
 static void vk_PLAT_destWindowRdata(inf_window* window) {
     inf_debug_msg("deleting window rdata...");
+
+    _vk_deviceWaitIdle();
 
     _vk_deleteFramebuffers(window);
     _vk_deleteRenderPass(window);
@@ -137,6 +175,9 @@ const inf_rendImpl inf_vk_impl = (inf_rendImpl){
 
         .makePipeline = vk_makePipeline,
         .destPipeline = vk_destPipeline,
+
+        .frameStart = vk_frameStart,
+        .frameEnd = vk_frameEnd,
 
         .PLAT_makeWindowRdata = vk_PLAT_makeWindowRdata,
         .PLAT_destWindowRdata = vk_PLAT_destWindowRdata,

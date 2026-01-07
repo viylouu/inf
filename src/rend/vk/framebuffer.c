@@ -11,7 +11,7 @@
 
 //#include <string.h>
 
-void _vk_createFramebuffers(inf_window* window) {
+static void _vk_createFramebuffers(inf_window* window) {
     inf_debug_msg("creating framebuffers...");
 
     vk_windowRdata* rd = window->rdata;
@@ -50,7 +50,7 @@ void _vk_createFramebuffers(inf_window* window) {
     inf_debug_msg("created framebuffers!");
 }
 
-void _vk_deleteFramebuffers(inf_window* window) {
+static void _vk_deleteFramebuffers(inf_window* window) {
     inf_debug_msg("deleting framebuffers...");
 
     vk_windowRdata* rd = window->rdata;
